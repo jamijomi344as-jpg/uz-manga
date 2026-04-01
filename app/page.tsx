@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import Link from 'next/link';
 import { Search, Bookmark } from 'lucide-react';
 import ContinueReading from './components/ContinueReading';
-import UserProfile from './components/UserProfile'; 
+import UserProfile from '@/components/UserProfile'; // XATO TO'G'IRLANDI
 
 export const dynamic = 'force-dynamic';
 
@@ -28,11 +28,11 @@ export default async function Home() {
             </Link>
             
             <div className="hidden md:flex items-center gap-6 text-[15px] font-medium text-gray-400">
-              <Link href="/" className="text-purple-500 border-b-2 border-purple-500 pb-[21px] pt-[23px]">Главная</Link>
-              <Link href="/catalog" className="hover:text-white transition-colors">Каталог</Link>
-              <Link href="/popular" className="hover:text-white transition-colors">Популярное</Link>
-              <Link href="/genres" className="hover:text-white transition-colors">Жанры</Link>
-              <Link href="/new" className="hover:text-white transition-colors">Новинки</Link>
+              <Link href="/" className="text-purple-500 border-b-2 border-purple-500 pb-[21px] pt-[23px]">Asosiy</Link>
+              <Link href="/catalog" className="hover:text-white transition-colors">Katalog</Link>
+              <Link href="/popular" className="hover:text-white transition-colors">Ommabop</Link>
+              <Link href="/genres" className="hover:text-white transition-colors">Janrlar</Link>
+              <Link href="/new" className="hover:text-white transition-colors">Yangi</Link>
             </div>
           </div>
           
@@ -46,10 +46,10 @@ export default async function Home() {
 
       <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-8">
         
-        {/* O'qishda davom etish qismi (Faqat o'qigan bo'lsa chiqadi) */}
+        {/* O'qishda davom etish qismi */}
         <ContinueReading />
         
-        <h1 className="text-[24px] font-bold text-white mb-6">Свежие обновления</h1>
+        <h1 className="text-[24px] font-bold text-white mb-6">So'nggi yangilanishlar</h1>
         
         {/* Manga kartalari - ixcham grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 sm:gap-6">
@@ -73,14 +73,14 @@ export default async function Home() {
                     {manga.title}
                   </h2>
                   <p className="text-[12px] text-gray-500 mt-1 truncate">
-                    {manga.type || 'Манхва'} • {manga.genres || 'Приключения'}
+                    {manga.manga_type || 'Manhva'} • {manga.genres?.split(',')[0] || 'Sarguzasht'}
                   </p>
                 </div>
               </Link>
             ))
           ) : (
             <div className="col-span-full py-20 text-center text-gray-600 border border-dashed border-gray-800 rounded-2xl">
-              Список пуст. Добавьте мангу в базу данных.
+              Ro'yxat bo'sh. Bazaga manga qo'shing.
             </div>
           )}
         </div>
