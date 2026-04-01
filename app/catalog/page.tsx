@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import Link from 'next/link';
 import { Search, X, SearchX, Bookmark } from 'lucide-react';
-import UserProfile from '@/components/UserProfile'; // XATO TO'G'IRLANDI
+// XATO MANA SHU YERDA EDI, MANZIL TO'G'IRLANDI:
+import UserProfile from '../components/UserProfile'; 
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
