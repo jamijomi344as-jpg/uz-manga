@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import Link from 'next/link';
 import { Search, Bookmark } from 'lucide-react';
 import ContinueReading from './components/ContinueReading';
-import UserProfile from '@/components/UserProfile';
+import UserProfile from './components/UserProfile';
 
 export const dynamic = 'force-dynamic';
 
