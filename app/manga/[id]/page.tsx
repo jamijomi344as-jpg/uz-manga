@@ -4,7 +4,6 @@ import { ArrowLeft, BookOpen, Eye } from 'lucide-react';
 import BookmarkButton from '../../components/BookmarkButton';
 import ViewTracker from '../../components/ViewTracker'; 
 import RatingStars from '../../../components/RatingStars';
-import SaveHistory from '../../components/SaveHistory';
 import Comments from '../../components/Comments';
 
 export const dynamic = 'force-dynamic';
@@ -21,7 +20,7 @@ export default async function MangaDetails({ params }: { params: Promise<{ id: s
   if (mangaError || !manga) {
     return (
       <div className="min-h-screen bg-[#0E0E10] text-white flex items-center justify-center">
-        <h1 className="text-3xl font-bold mb-4">Manga topilmadi 😕</h1>
+        <h1 className="text-2xl font-bold">Asar topilmadi 😕</h1>
       </div>
     );
   }
@@ -31,43 +30,44 @@ export default async function MangaDetails({ params }: { params: Promise<{ id: s
       <ViewTracker mangaId={manga.id} currentViews={manga.views || 0} />
       
       <div className="w-full h-[350px] relative overflow-hidden flex justify-center">
-        <div className="absolute inset-0 bg-[#0E0E10]/85 z-10"></div>
-        <img src={manga.image_url} className="w-full h-full object-cover opacity-60" alt={manga.title} />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0E0E10] via-[#0E0E10]/80 to-transparent z-10"></div>
+        <img src={manga.image_url} className="w-full h-full object-cover opacity-40 blur-sm" alt="" />
       </div>
 
-      <div className="max-w-[1200px] mx-auto px-4 relative z-30 -mt-[250px]">
-        <Link href="/" className="inline-flex items-center gap-2 text-gray-400 mb-6 bg-black/40 px-3 py-1.5 rounded-full hover:text-white transition">
+      <div className="max-w-[1200px] mx-auto px-4 relative z-30 -mt-[200px]">
+        <Link href="/" className="inline-flex items-center gap-2 text-gray-400 mb-6 bg-black/40 px-4 py-2 rounded-xl hover:text-white transition backdrop-blur-md border border-white/5">
           <ArrowLeft size={18} /> Asosiyga qaytish
         </Link>
 
-        <div className="flex flex-col md:flex-row gap-6">
-          <div className="w-[220px] md:w-[280px] shrink-0">
-            <img src={manga.image_url} className="w-full rounded-xl border border-gray-800 aspect-[3/4] object-cover mb-6 shadow-2xl" alt={manga.title} />
+        <div className="flex flex-col md:flex-row gap-8">
+          <div className="w-[240px] md:w-[300px] shrink-0 mx-auto md:mx-0">
+            <img src={manga.image_url} className="w-full rounded-2xl border border-gray-800 aspect-[3/4] object-cover mb-6 shadow-2xl shadow-purple-900/20" alt={manga.title} />
             <div className="flex gap-3">
               {chapters && chapters.length > 0 ? (
-                <Link href={`/read/${chapters[chapters.length - 1].id}`} className="flex-1 flex justify-center gap-2 bg-purple-600 text-white font-bold py-3.5 rounded-xl hover:bg-purple-500 transition">
+                <Link href={`/read/${chapters[chapters.length - 1].id}`} className="flex-1 flex justify-center gap-2 bg-purple-600 text-white font-bold py-4 rounded-xl hover:bg-purple-500 transition shadow-lg shadow-purple-600/20">
                   <BookOpen size={20} /> O'qish
                 </Link>
               ) : (
-                <button disabled className="flex-1 bg-gray-800 text-gray-500 font-bold py-3.5 rounded-xl">Tez orada</button>
+                <button disabled className="flex-1 bg-gray-800 text-gray-500 font-bold py-4 rounded-xl">Yaqinda</button>
               )}
               <BookmarkButton manga={manga} />
             </div>
           </div>
 
-          <div className="flex-1 md:mt-10">
-            <h1 className="text-4xl font-black text-white mb-3">{manga.title}</h1>
+          <div className="flex-1 md:mt-6">
+            <h1 className="text-3xl md:text-5xl font-black text-white mb-4 leading-tight">{manga.title}</h1>
             
-            {/* JANRLAR QISMI TO'G'IRLANDI */}
+            {/* JANRLAR - HAR BIRI KATALOGGA YO'NALTIRADI */}
             <div className="flex flex-wrap gap-2 mb-8">
-              <span className="bg-purple-600/20 text-purple-400 px-3 py-1 rounded-full text-xs font-bold border border-purple-500/20">
+              <span className="bg-purple-600/20 text-purple-400 px-3 py-1.5 rounded-lg text-xs font-bold border border-purple-500/20">
                 {manga.manga_type || 'Manhva'}
               </span>
+              
               {Array.isArray(manga.genres) ? manga.genres.map((genre: string) => (
                 <Link 
                   href={`/catalog?genre=${genre}`} 
                   key={genre} 
-                  className="bg-gray-800/80 hover:bg-purple-600 hover:text-white px-3 py-1 rounded-full text-xs font-medium text-gray-300 transition-colors border border-gray-700"
+                  className="bg-gray-800/60 hover:bg-purple-600 hover:text-white px-3 py-1.5 rounded-lg text-xs font-medium text-gray-300 transition-all border border-gray-700 active:scale-95"
                 >
                   {genre}
                 </Link>
@@ -75,31 +75,38 @@ export default async function MangaDetails({ params }: { params: Promise<{ id: s
                 <Link 
                   href={`/catalog?genre=${g.trim()}`} 
                   key={g} 
-                  className="bg-gray-800/80 hover:bg-purple-600 hover:text-white px-3 py-1 rounded-full text-xs font-medium text-gray-300 transition-colors border border-gray-700"
+                  className="bg-gray-800/60 hover:bg-purple-600 hover:text-white px-3 py-1.5 rounded-lg text-xs font-medium text-gray-300 transition-all border border-gray-700 active:scale-95"
                 >
                   {g.trim()}
                 </Link>
               ))}
-              <span className="flex items-center gap-1.5 bg-gray-800/80 px-3 py-1 rounded-full text-xs font-medium text-gray-300 border border-gray-700">
+              
+              <span className="flex items-center gap-1.5 bg-gray-800/40 px-3 py-1.5 rounded-lg text-xs font-medium text-gray-400 border border-gray-700">
                 <Eye size={14}/> {manga.views || 0}
               </span>
             </div>
 
-            <RatingStars mangaId={manga.id.toString()} initialRating={9.5} initialCount={12} />
+            <RatingStars mangaId={manga.id.toString()} initialRating={9.2} initialCount={24} />
 
-            <div className="my-10 bg-[#151518] p-5 rounded-2xl border border-gray-800">
-              <h3 className="font-bold text-white mb-2">Tavsif</h3>
-              <p className="text-gray-400 text-sm leading-relaxed">{manga.description || 'Tavsif yo\'q'}</p>
+            <div className="my-8 bg-[#151518] p-6 rounded-2xl border border-gray-800/50">
+              <h3 className="font-bold text-white mb-3 flex items-center gap-2 italic text-sm uppercase tracking-widest opacity-60">Asar haqida</h3>
+              <p className="text-gray-400 text-[15px] leading-relaxed">{manga.description || 'Tavsif qo\'shilmagan.'}</p>
             </div>
 
-            <h3 className="text-lg font-bold text-white mb-4">Boblar ({chapters?.length || 0})</h3>
-            <div className="bg-[#151518] border border-gray-800 rounded-2xl max-h-[400px] overflow-y-auto mb-10 custom-scrollbar">
-              {chapters?.map((ch: any) => (
-                <Link href={`/read/${ch.id}`} key={ch.id} className="flex justify-between p-4 border-b border-gray-800 hover:bg-gray-800/50 transition">
-                  <span className="font-semibold text-gray-300">{ch.chapter_number}-bob</span>
-                  <span className="text-xs text-gray-500">{new Date(ch.created_at).toLocaleDateString()}</span>
-                </Link>
-              ))}
+            <h3 className="text-xl font-bold text-white mb-5 flex items-center gap-2">
+              Boblar <span className="text-purple-500 text-sm bg-purple-500/10 px-2 py-0.5 rounded-md">{chapters?.length || 0}</span>
+            </h3>
+            <div className="bg-[#151518] border border-gray-800/50 rounded-2xl max-h-[450px] overflow-y-auto mb-10 custom-scrollbar shadow-inner">
+              {chapters && chapters.length > 0 ? (
+                chapters.map((ch: any) => (
+                  <Link href={`/read/${ch.id}`} key={ch.id} className="flex justify-between items-center p-5 border-b border-gray-800/50 hover:bg-white/5 transition-all group">
+                    <span className="font-bold text-gray-300 group-hover:text-purple-400 transition-colors">{ch.chapter_number}-bob</span>
+                    <span className="text-xs text-gray-600">{new Date(ch.created_at).toLocaleDateString()}</span>
+                  </Link>
+                ))
+              ) : (
+                <div className="p-10 text-center text-gray-600 italic">Hali boblar yuklanmagan</div>
+              )}
             </div>
             
             <Comments mangaId={manga.id.toString()} />
