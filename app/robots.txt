@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /profile
+Disallow: /settings
+
+Sitemap: https://uz-manga-sanz.vercel.app/sitemap.xml
