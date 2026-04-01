@@ -51,7 +51,8 @@ export default function AddMangaPage() {
         status,
         age_rating: ageRating,
         release_year: releaseYear,
-        genres: selectedGenres // Tanlangan janrlar massivi
+        // XATO TUZATILDI: Janrlar massivdan matnga o'girildi
+        genres: selectedGenres.join(', ') 
       }
     ]);
 
@@ -71,104 +72,3 @@ export default function AddMangaPage() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white p-6 md:p-12 font-sans">
       <div className="max-w-3xl mx-auto bg-[#141414] border border-zinc-800 p-8 rounded-2xl shadow-2xl">
-        
-        <div className="flex items-center gap-3 mb-8 border-b border-zinc-800 pb-4">
-          <div className="bg-[#6E3FD1] p-2 rounded-lg text-white">
-            <Plus size={24} />
-          </div>
-          <h1 className="text-2xl font-black tracking-wide">YANGI ASAR QO'SHISH</h1>
-        </div>
-
-        {message && (
-          <div className={`p-4 rounded-xl mb-6 font-bold flex items-center gap-2 ${message.includes('✅') ? 'bg-green-500/20 text-green-400 border border-green-500/50' : 'bg-red-500/20 text-red-400 border border-red-500/50'}`}>
-            {message.includes('✅') ? <Check size={20}/> : <AlertCircle size={20}/>}
-            {message}
-          </div>
-        )}
-
-        <form onSubmit={handleAddManga} className="space-y-6">
-          
-          {/* ASOSIY MA'LUMOTLAR */}
-          <div className="space-y-4">
-            <div>
-              <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Asar nomi</label>
-              <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Masalan: Magic Emperor" className="w-full bg-[#0a0a0a] border border-zinc-800 text-white rounded-xl p-4 focus:border-[#6E3FD1] focus:ring-1 focus:ring-[#6E3FD1] outline-none transition" />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Muqova rasmi (URL)</label>
-              <input type="text" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://.../rasm.jpg" className="w-full bg-[#0a0a0a] border border-zinc-800 text-white rounded-xl p-4 focus:border-[#6E3FD1] focus:ring-1 focus:ring-[#6E3FD1] outline-none transition" />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Tavsif (Opisaniye)</label>
-              <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={4} placeholder="Asar haqida qisqacha..." className="w-full bg-[#0a0a0a] border border-zinc-800 text-white rounded-xl p-4 focus:border-[#6E3FD1] outline-none transition custom-scrollbar"></textarea>
-            </div>
-          </div>
-
-          <div className="h-px bg-zinc-800 my-6"></div>
-
-          {/* FILTRLAR UCHUN SOZLAMALAR (Grid) */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
-            <div>
-              <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Asar Tipi</label>
-              <select value={mangaType} onChange={(e) => setMangaType(e.target.value)} className="w-full bg-[#0a0a0a] border border-zinc-800 text-white rounded-xl p-4 outline-none cursor-pointer focus:border-[#6E3FD1]">
-                {TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Holati</label>
-              <select value={status} onChange={(e) => setStatus(e.target.value)} className="w-full bg-[#0a0a0a] border border-zinc-800 text-white rounded-xl p-4 outline-none cursor-pointer focus:border-[#6E3FD1]">
-                {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Yosh chegarasi</label>
-              <select value={ageRating} onChange={(e) => setAgeRating(e.target.value)} className="w-full bg-[#0a0a0a] border border-zinc-800 text-white rounded-xl p-4 outline-none cursor-pointer focus:border-[#6E3FD1]">
-                {RATINGS.map(r => <option key={r} value={r}>{r}</option>)}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Chiqarilgan yili</label>
-              <input type="number" value={releaseYear} onChange={(e) => setReleaseYear(parseInt(e.target.value))} className="w-full bg-[#0a0a0a] border border-zinc-800 text-white rounded-xl p-4 focus:border-[#6E3FD1] outline-none transition" />
-            </div>
-
-          </div>
-
-          <div className="h-px bg-zinc-800 my-6"></div>
-
-          {/* JANRLAR (Ko'p tanlovli) */}
-          <div>
-            <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-4">Janrlarni tanlang (Bir nechta tanlash mumkin)</label>
-            <div className="flex flex-wrap gap-2">
-              {GENRES.map(genre => {
-                const isActive = selectedGenres.includes(genre);
-                return (
-                  <button
-                    key={genre}
-                    type="button"
-                    onClick={() => toggleGenre(genre)}
-                    className={`text-sm font-bold px-4 py-2 rounded-xl border transition-all ${isActive ? 'bg-[#6E3FD1] border-[#8356E8] text-white shadow-lg shadow-purple-500/20' : 'bg-[#0a0a0a] border-zinc-800 text-zinc-400 hover:border-zinc-500 hover:text-white'}`}
-                  >
-                    {isActive && <Check size={14} className="inline mr-1" />}
-                    {genre}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* YUKLASH TUGMASI */}
-          <button type="submit" disabled={loading} className="w-full mt-8 bg-[#6E3FD1] hover:bg-[#8356E8] disabled:bg-zinc-800 disabled:text-zinc-500 text-white font-black text-lg py-4 rounded-xl shadow-[0_0_30px_rgba(110,63,209,0.3)] transition-all flex justify-center items-center gap-2 active:scale-95">
-            {loading ? <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-white"></div> : <><Upload size={20} /> BAZAGA SAQLASH</>}
-          </button>
-
-        </form>
-      </div>
-    </div>
-  );
-}
