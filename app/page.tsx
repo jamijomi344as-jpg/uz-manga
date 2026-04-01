@@ -11,10 +11,14 @@ const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default async function Home() {
-  const { data: mangas } = await supabase
+  const { data: mangas, error } = await supabase
     .from('mangas')
     .select('*')
     .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error("Ma'lumot olishda xatolik:", error);
+  }
 
   return (
     <main className="min-h-screen bg-[#0E0E10] text-gray-200 font-sans">
@@ -47,18 +51,36 @@ export default async function Home() {
           {mangas && mangas.length > 0 ? (
             mangas.map((manga: any) => (
               <Link href={`/manga/${manga.id}`} key={manga.id} className="group flex flex-col cursor-pointer">
-                <div className="relative aspect-[3/4] w-full overflow-hidden rounded-lg mb-3 bg-[#1A1A1D] border border-gray-800 group-hover:border-purple-500/50 transition-all">
-                  <img src={manga.image_url || 'https://via.placeholder.com/300x400'} alt={manga.title} className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300" />
-                  {manga.status && <div className="absolute top-0 left-0 bg-purple-600 text-white text-[10px] font-bold px-2 py-1 rounded-br-md uppercase">{manga.status}</div>}
+                <div className="relative aspect-[3/4] w-full overflow-hidden rounded-lg mb-3 bg-[#1A1A1D] border border-gray-800 group-hover:border-purple-500/50 transition-all shadow-lg">
+                  <img 
+                    src={manga.image_url || 'https://via.placeholder.com/300x400'} 
+                    alt={manga.title} 
+                    className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300" 
+                  />
+                  {manga.status && (
+                    <div className="absolute top-0 left-0 bg-purple-600 text-white text-[10px] font-bold px-2 py-1 rounded-br-md uppercase tracking-wider">
+                      {manga.status}
+                    </div>
+                  )}
                 </div>
                 <div className="flex flex-col px-1">
-                  <h2 className="text-[14px] font-bold text-gray-200 line-clamp-2 group-hover:text-purple-400">{manga.title}</h2>
-                  <p className="text-[12px] text-gray-500 mt-1">{manga.type || 'Manhva'} • {manga.genres?.split(',')[0] || 'Sarguzasht'}</p>
+                  <h2 className="text-[14px] font-bold text-gray-200 line-clamp-2 leading-tight group-hover:text-purple-400 transition-colors">
+                    {manga.title}
+                  </h2>
+                  <p className="text-[12px] text-gray-500 mt-1 truncate font-medium">
+                    {manga.manga_type || 'Manhva'} • {
+                      Array.isArray(manga.genres) 
+                        ? manga.genres[0] 
+                        : (manga.genres?.split(',')[0] || 'Sarguzasht')
+                    }
+                  </p>
                 </div>
               </Link>
             ))
           ) : (
-            <div className="col-span-full py-20 text-center text-gray-600 border border-dashed border-gray-800 rounded-2xl">Ro'yxat bo'sh. Bazaga manga qo'shing.</div>
+            <div className="col-span-full py-20 text-center text-gray-600 border border-dashed border-gray-800 rounded-2xl">
+              Ro'yxat bo'sh. Bazaga manga qo'shing.
+            </div>
           )}
         </div>
       </div>
