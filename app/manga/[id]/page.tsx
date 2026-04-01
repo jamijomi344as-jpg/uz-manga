@@ -1,11 +1,11 @@
 import { createClient } from '@supabase/supabase-js';
 import Link from 'next/link';
-import { ArrowLeft, BookOpen, Clock, Eye, Star } from 'lucide-react';
+import { ArrowLeft, BookOpen, Eye } from 'lucide-react';
 import BookmarkButton from '../../components/BookmarkButton';
 import ViewTracker from '../../components/ViewTracker'; 
-import RatingStars from '../../../components/RatingStars'; // YANGI
-import SaveHistory from '../../components/SaveHistory'; // YANGI
-import Comments from '../../components/Comments'; // YANGI
+import RatingStars from '../../../components/RatingStars';
+import SaveHistory from '../../components/SaveHistory';
+import Comments from '../../components/Comments';
 
 export const dynamic = 'force-dynamic';
 
@@ -32,20 +32,20 @@ export default async function MangaDetails({ params }: { params: Promise<{ id: s
       
       <div className="w-full h-[350px] relative overflow-hidden flex justify-center">
         <div className="absolute inset-0 bg-[#0E0E10]/85 z-10"></div>
-        <img src={manga.image_url} className="w-full h-full object-cover opacity-60" />
+        <img src={manga.image_url} className="w-full h-full object-cover opacity-60" alt={manga.title} />
       </div>
 
       <div className="max-w-[1200px] mx-auto px-4 relative z-30 -mt-[250px]">
-        <Link href="/" className="inline-flex items-center gap-2 text-gray-400 mb-6 bg-black/40 px-3 py-1.5 rounded-full">
+        <Link href="/" className="inline-flex items-center gap-2 text-gray-400 mb-6 bg-black/40 px-3 py-1.5 rounded-full hover:text-white transition">
           <ArrowLeft size={18} /> Asosiyga qaytish
         </Link>
 
         <div className="flex flex-col md:flex-row gap-6">
           <div className="w-[220px] md:w-[280px] shrink-0">
-            <img src={manga.image_url} className="w-full rounded-xl border border-gray-800 aspect-[3/4] object-cover mb-6" />
+            <img src={manga.image_url} className="w-full rounded-xl border border-gray-800 aspect-[3/4] object-cover mb-6 shadow-2xl" alt={manga.title} />
             <div className="flex gap-3">
               {chapters && chapters.length > 0 ? (
-                <Link href={`/read/${chapters[chapters.length - 1].id}`} className="flex-1 flex justify-center gap-2 bg-purple-600 text-white font-bold py-3.5 rounded-xl">
+                <Link href={`/read/${chapters[chapters.length - 1].id}`} className="flex-1 flex justify-center gap-2 bg-purple-600 text-white font-bold py-3.5 rounded-xl hover:bg-purple-500 transition">
                   <BookOpen size={20} /> O'qish
                 </Link>
               ) : (
@@ -57,31 +57,51 @@ export default async function MangaDetails({ params }: { params: Promise<{ id: s
 
           <div className="flex-1 md:mt-10">
             <h1 className="text-4xl font-black text-white mb-3">{manga.title}</h1>
-            <div className="flex gap-3 mb-8">
-              <span className="bg-purple-600/20 text-purple-400 px-2.5 py-1 rounded-md">{manga.manga_type || 'Manhva'}</span>
-              <span className="bg-gray-800/80 px-2.5 py-1 rounded-md text-gray-300">{manga.genres || 'Sarguzasht'}</span>
-              <span className="flex items-center gap-1.5 bg-gray-800/80 px-2.5 py-1 rounded-md text-gray-300"><Eye size={16}/> {manga.views || 0}</span>
+            
+            {/* JANRLAR QISMI TO'G'IRLANDI */}
+            <div className="flex flex-wrap gap-2 mb-8">
+              <span className="bg-purple-600/20 text-purple-400 px-3 py-1 rounded-full text-xs font-bold border border-purple-500/20">
+                {manga.manga_type || 'Manhva'}
+              </span>
+              {Array.isArray(manga.genres) ? manga.genres.map((genre: string) => (
+                <Link 
+                  href={`/catalog?genre=${genre}`} 
+                  key={genre} 
+                  className="bg-gray-800/80 hover:bg-purple-600 hover:text-white px-3 py-1 rounded-full text-xs font-medium text-gray-300 transition-colors border border-gray-700"
+                >
+                  {genre}
+                </Link>
+              )) : manga.genres?.split(',').map((g: string) => (
+                <Link 
+                  href={`/catalog?genre=${g.trim()}`} 
+                  key={g} 
+                  className="bg-gray-800/80 hover:bg-purple-600 hover:text-white px-3 py-1 rounded-full text-xs font-medium text-gray-300 transition-colors border border-gray-700"
+                >
+                  {g.trim()}
+                </Link>
+              ))}
+              <span className="flex items-center gap-1.5 bg-gray-800/80 px-3 py-1 rounded-full text-xs font-medium text-gray-300 border border-gray-700">
+                <Eye size={14}/> {manga.views || 0}
+              </span>
             </div>
 
-            {/* REYTING TIZIMI ULANDI */}
             <RatingStars mangaId={manga.id.toString()} initialRating={9.5} initialCount={12} />
 
             <div className="my-10 bg-[#151518] p-5 rounded-2xl border border-gray-800">
               <h3 className="font-bold text-white mb-2">Tavsif</h3>
-              <p className="text-gray-400 text-sm">{manga.description || 'Tavsif yo\'q'}</p>
+              <p className="text-gray-400 text-sm leading-relaxed">{manga.description || 'Tavsif yo\'q'}</p>
             </div>
 
             <h3 className="text-lg font-bold text-white mb-4">Boblar ({chapters?.length || 0})</h3>
-            <div className="bg-[#151518] border border-gray-800 rounded-2xl max-h-[400px] overflow-y-auto mb-10">
+            <div className="bg-[#151518] border border-gray-800 rounded-2xl max-h-[400px] overflow-y-auto mb-10 custom-scrollbar">
               {chapters?.map((ch: any) => (
-                <Link href={`/read/${ch.id}`} key={ch.id} className="flex justify-between p-4 border-b border-gray-800 hover:bg-gray-800/50">
+                <Link href={`/read/${ch.id}`} key={ch.id} className="flex justify-between p-4 border-b border-gray-800 hover:bg-gray-800/50 transition">
                   <span className="font-semibold text-gray-300">{ch.chapter_number}-bob</span>
                   <span className="text-xs text-gray-500">{new Date(ch.created_at).toLocaleDateString()}</span>
                 </Link>
               ))}
             </div>
             
-            {/* SHARHLAR ULANDI */}
             <Comments mangaId={manga.id.toString()} />
           </div>
         </div>
