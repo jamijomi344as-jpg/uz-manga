@@ -18,8 +18,8 @@ export default function HistoryPage() {
       {history.length > 0 ? (
         <div className="space-y-4 max-w-3xl">
           {history.map((item, idx) => (
-            <Link href={`/read/${item.chapterId}`} key={idx} className="flex items-center gap-4 bg-[#151518] p-4 rounded-xl border border-gray-800 hover:border-purple-500">
-              <img src={item.mangaImage} className="w-16 h-20 object-cover rounded-lg" />
+            <Link href={`/read/${item.chapterId}`} key={idx} className="flex items-center gap-4 bg-[#151518] p-4 rounded-xl border border-gray-800 hover:border-purple-500 transition-colors">
+              <img src={item.mangaImage || 'https://via.placeholder.com/150'} className="w-16 h-20 object-cover rounded-lg" />
               <div>
                 <h3 className="font-bold text-lg">{item.mangaTitle}</h3>
                 <p className="text-gray-400 text-sm">{item.chapterNumber}-bob</p>
