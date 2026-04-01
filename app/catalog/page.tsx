@@ -4,8 +4,7 @@ import { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import Link from 'next/link';
 import { Search, X, SearchX, Bookmark } from 'lucide-react';
-// XATO MANA SHU YERDA EDI, MANZIL TO'G'IRLANDI:
-import UserProfile from '../components/UserProfile'; 
+import UserProfile from '../components/UserProfile';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
@@ -16,7 +15,6 @@ export default function CatalogPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Mangalarni yuklash
   async function loadMangas(query = '') {
     setLoading(true);
     let request = supabase.from('mangas').select('*').order('title', { ascending: true });
