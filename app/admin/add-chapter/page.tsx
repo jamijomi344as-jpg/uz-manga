@@ -45,11 +45,11 @@ export default function AddChapterPage() {
 
     // Chapters jadvaliga yangi qator qo'shish
     const { error } = await supabase.from('chapters').insert([
-      { 
-        manga_id: selectedMangaId, 
-        chapter_number: Number(chapterNumber), 
-        file_url: fileUrl 
-      }
+   { 
+  manga_id: parseInt(selectedMangaId), 
+  chapter_number: Number(chapterNumber), 
+  pdf_url: fileUrl 
+}
     ]);
 
     if (error) {
