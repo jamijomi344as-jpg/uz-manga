@@ -1,11 +1,10 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Vercel va Local muhit uchun kalitlarni tekshirish
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseKey) {
-  console.error("Supabase kalitlari topilmadi!");
+  throw new Error("Supabase URL yoki Key topilmadi! Vercel Settings -> Environment Variables qismini tekshiring.");
 }
 
 export const supabase = createClient(supabaseUrl, supabaseKey);
