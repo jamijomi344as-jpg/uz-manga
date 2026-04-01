@@ -3,13 +3,15 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import FloatingMenu from "@/components/FloatingMenu";
 
-export default async function ChapterReaderPage({ params }: { params: Promise<{ chapterId: string }> }) {
-  const { chapterId } = await params;
+export const dynamic = 'force-dynamic';
+
+export default async function ChapterReaderPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
 
   const { data: chapter, error } = await supabase
     .from('chapters')
     .select('*, mangas(id, title)')
-    .eq('id', chapterId)
+    .eq('id', id)
     .single();
 
   let allChapters: any[] = [];
@@ -59,14 +61,16 @@ export default async function ChapterReaderPage({ params }: { params: Promise<{ 
           {cleanPdfUrl ? (
              <iframe 
                src={cleanPdfUrl} 
-               className="absolute top-[-56px] left-0 w-full h-[calc(100vh+56px)] border-none"
+               className="absolute top-[-56px] left-0 w-full h-[calc(100vh+56px)] border-none bg-white"
                title={`Bob ${chapter.chapter_number}`}
              ></iframe>
           ) : (
             <div className="flex items-center justify-center h-full text-zinc-500">PDF fayl topilmadi</div>
           )}
         </main>
-        <FloatingMenu chapters={allChapters} currentChapterId={chapterId} />
+        
+        {/* Suzuvchi menyu (Floating Menu) id orqali ulandi */}
+        <FloatingMenu chapters={allChapters} currentChapterId={id} />
       </div>
     </div>
   );
