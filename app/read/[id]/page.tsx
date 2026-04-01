@@ -2,7 +2,7 @@ import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import FloatingMenu from "@/components/FloatingMenu";
-import SaveHistory from "@/app/components/SaveHistory"; // TARIX UCHUN QO'SHILDI
+import SaveHistory from "@/app/components/SaveHistory";
 
 export const dynamic = 'force-dynamic';
 
@@ -11,7 +11,7 @@ export default async function ChapterReaderPage({ params }: { params: Promise<{ 
 
   const { data: chapter, error } = await supabase
     .from('chapters')
-    .select('*, mangas(id, title, image_url)') // RASM HAM OLINDI
+    .select('*, mangas(id, title, image_url)')
     .eq('id', id)
     .single();
 
@@ -38,7 +38,6 @@ export default async function ChapterReaderPage({ params }: { params: Promise<{ 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white flex flex-col font-sans relative overflow-hidden">
       
-      {/* TARIXGA SAQLASH KODI ISHGA TUSHDI */}
       <SaveHistory 
         mangaId={chapter.manga_id} 
         mangaTitle={chapter.mangas.title} 
