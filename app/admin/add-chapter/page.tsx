@@ -1,62 +1,61 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { Upload, Plus, Check, AlertCircle, BookOpen } from "lucide-react";
+import { Upload, Plus, Check, AlertCircle } from "lucide-react";
 
-export default function AddChapterPage() {
-  const [mangas, setMangas] = useState<any[]>([]);
-  const [selectedMangaId, setSelectedMangaId] = useState("");
-  const [chapterNumber, setChapterNumber] = useState("");
-  const [fileUrl, setFileUrl] = useState("");
+const GENRES = ["Ekshen", "Fantastika", "Syonen", "Romantika", "Sarguzasht", "Isekai", "Tarixiy", "Muzika", "Maktab", "Kultivatsiya", "Reenkarnatsiya", "Aql o'yinlari"];
+const TYPES = ["Manxva", "Manxua", "Manga", "Donghua"];
+const STATUSES = ["Chiqyapti", "Tugallangan", "To'xtatilgan"];
+const RATINGS = ["12+", "16+", "18+"];
+
+export default function AddMangaPage() {
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
+  const [mangaType, setMangaType] = useState("Manxua");
+  const [status, setStatus] = useState("Chiqyapti");
+  const [ageRating, setAgeRating] = useState("16+");
+  const [releaseYear, setReleaseYear] = useState(new Date().getFullYear());
+  const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
-  useEffect(() => {
-    const fetchMangas = async () => {
-      const { data } = await supabase.from('mangas').select('id, title').order('title', { ascending: true });
-      if (data) setMangas(data);
-    };
-    fetchMangas();
-  }, []);
+  const toggleGenre = (genre: string) => {
+    setSelectedGenres(prev => prev.includes(genre) ? prev.filter(g => g !== genre) : [...prev, genre]);
+  };
 
-  const handleAddChapter = async (e: React.FormEvent) => {
+  const handleAddManga = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedMangaId || !chapterNumber || !fileUrl) {
-      setMessage("Iltimos, manga, bob raqami va PDF linkni kiriting!");
+    if (!title || !imageUrl) {
+      setMessage("Iltimos, nom va rasm manzilini kiriting!");
       return;
     }
-
     setLoading(true);
     setMessage("");
 
-    // XATO TUZATILDI: manga_id raqamga o'girildi va pdf_url ishlatildi!
-    const { error } = await supabase.from('chapters').insert([
+    const { error } = await supabase.from('mangas').insert([
       { 
-        manga_id: parseInt(selectedMangaId), 
-        chapter_number: Number(chapterNumber), 
-        pdf_url: fileUrl 
+        title, description, image_url: imageUrl, manga_type: mangaType,
+        status, age_rating: ageRating, release_year: releaseYear,
+        genres: selectedGenres.join(', ') 
       }
     ]);
 
     if (error) {
       setMessage("Xatolik: " + error.message);
     } else {
-      setMessage(`✅ ${chapterNumber}-bob muvaffaqiyatli qo'shildi!`);
-      setChapterNumber("");
-      setFileUrl("");
+      setMessage("✅ Manga bazaga muvaffaqiyatli qo'shildi!");
+      setTitle(""); setDescription(""); setImageUrl(""); setSelectedGenres([]);
     }
     setLoading(false);
   };
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white p-6 md:p-12 font-sans">
-      <div className="max-w-2xl mx-auto bg-[#141414] border border-zinc-800 p-8 rounded-2xl shadow-2xl">
+      <div className="max-w-3xl mx-auto bg-[#141414] border border-zinc-800 p-8 rounded-2xl shadow-2xl">
         <div className="flex items-center gap-3 mb-8 border-b border-zinc-800 pb-4">
-          <div className="bg-[#6E3FD1] p-3 rounded-xl text-white"><BookOpen size={24} /></div>
-          <div>
-            <h1 className="text-2xl font-black tracking-wide">YANGI BOB QO'SHISH</h1>
-            <p className="text-zinc-500 text-sm mt-1">Mavjud mangalar ichiga yangi PDF yuklash</p>
-          </div>
+          <div className="bg-[#6E3FD1] p-2 rounded-lg text-white"><Plus size={24} /></div>
+          <h1 className="text-2xl font-black tracking-wide">YANGI ASAR QO'SHISH</h1>
         </div>
 
         {message && (
@@ -66,26 +65,62 @@ export default function AddChapterPage() {
           </div>
         )}
 
-        <form onSubmit={handleAddChapter} className="space-y-6">
-          <div>
-            <label className="block text-xs font-bold text-zinc-500 mb-2">Qaysi mangaga bob qo'shyapmiz?</label>
-            <select value={selectedMangaId} onChange={(e) => setSelectedMangaId(e.target.value)} className="w-full bg-[#0a0a0a] border border-zinc-800 rounded-xl p-4 text-white">
-              <option value="" disabled>-- Mangani tanlang --</option>
-              {mangas.map(manga => <option key={manga.id} value={manga.id}>{manga.title}</option>)}
-            </select>
+        <form onSubmit={handleAddManga} className="space-y-6">
+          <div className="space-y-4">
+            <div>
+              <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Asar nomi</label>
+              <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full bg-[#0a0a0a] border border-zinc-800 rounded-xl p-4 focus:border-[#6E3FD1] outline-none" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Muqova rasmi (URL)</label>
+              <input type="text" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} className="w-full bg-[#0a0a0a] border border-zinc-800 rounded-xl p-4 focus:border-[#6E3FD1] outline-none" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Tavsif (Opisaniye)</label>
+              <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={4} className="w-full bg-[#0a0a0a] border border-zinc-800 rounded-xl p-4 focus:border-[#6E3FD1] outline-none custom-scrollbar"></textarea>
+            </div>
           </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-xs font-bold text-zinc-500 mb-2">Bob Raqami</label>
-              <input type="number" step="any" value={chapterNumber} onChange={(e) => setChapterNumber(e.target.value)} className="w-full bg-[#0a0a0a] border border-zinc-800 rounded-xl p-4" />
+              <label className="block text-xs font-bold text-zinc-500 mb-2">Asar Tipi</label>
+              <select value={mangaType} onChange={(e) => setMangaType(e.target.value)} className="w-full bg-[#0a0a0a] border border-zinc-800 rounded-xl p-4">
+                {TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+              </select>
             </div>
             <div>
-              <label className="block text-xs font-bold text-zinc-500 mb-2">Fayl Manzili (PDF URL)</label>
-              <input type="text" value={fileUrl} onChange={(e) => setFileUrl(e.target.value)} className="w-full bg-[#0a0a0a] border border-zinc-800 rounded-xl p-4" />
+              <label className="block text-xs font-bold text-zinc-500 mb-2">Holati</label>
+              <select value={status} onChange={(e) => setStatus(e.target.value)} className="w-full bg-[#0a0a0a] border border-zinc-800 rounded-xl p-4">
+                {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-zinc-500 mb-2">Yosh</label>
+              <select value={ageRating} onChange={(e) => setAgeRating(e.target.value)} className="w-full bg-[#0a0a0a] border border-zinc-800 rounded-xl p-4">
+                {RATINGS.map(r => <option key={r} value={r}>{r}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-zinc-500 mb-2">Yil</label>
+              <input type="number" value={releaseYear} onChange={(e) => setReleaseYear(parseInt(e.target.value))} className="w-full bg-[#0a0a0a] border border-zinc-800 rounded-xl p-4" />
             </div>
           </div>
-          <button type="submit" disabled={loading || !selectedMangaId || !chapterNumber || !fileUrl} className="w-full mt-8 bg-[#6E3FD1] text-white font-black py-4 rounded-xl">
-            {loading ? "Yuklanmoqda..." : "BOBNI BAZAGA SAQLASH"}
+
+          <div>
+            <label className="block text-xs font-bold text-zinc-500 mb-4">Janrlar</label>
+            <div className="flex flex-wrap gap-2">
+              {GENRES.map(genre => {
+                const isActive = selectedGenres.includes(genre);
+                return (
+                  <button key={genre} type="button" onClick={() => toggleGenre(genre)} className={`text-sm font-bold px-4 py-2 rounded-xl border ${isActive ? 'bg-[#6E3FD1] border-[#8356E8]' : 'bg-[#0a0a0a] border-zinc-800'}`}>
+                    {isActive && <Check size={14} className="inline mr-1" />} {genre}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          <button type="submit" disabled={loading} className="w-full mt-8 bg-[#6E3FD1] text-white font-black py-4 rounded-xl">
+            {loading ? "Yuklanmoqda..." : "BAZAGA SAQLASH"}
           </button>
         </form>
       </div>
