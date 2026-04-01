@@ -4,7 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Search, X, SearchX, Hash, Layers } from 'lucide-react';
-import UserProfile from '@/components/UserProfile';
+import UserProfile from '../components/UserProfile';
 
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
 
@@ -12,8 +12,6 @@ const GENRES = ["Hammasi", "Ekshen", "Fantastika", "Syonen", "Romantika", "Sargu
 
 function CatalogContent() {
   const searchParams = useSearchParams();
-  
-  // URL orqali janr kelgan bo'lsa uni olamiz, aks holda "Hammasi"
   const initialGenre = searchParams.get('genre') || 'Hammasi';
 
   const [mangas, setMangas] = useState<any[]>([]);
@@ -24,7 +22,6 @@ function CatalogContent() {
   const [minChapters, setMinChapters] = useState('');
   const [maxChapters, setMaxChapters] = useState('');
 
-  // Agar URL'dagi janr o'zgarsa (masalan boshqa janr tugmasi bosilsa) state'ni yangilash
   useEffect(() => {
     const genreFromUrl = searchParams.get('genre');
     if (genreFromUrl) setSelectedGenre(genreFromUrl);
@@ -34,22 +31,14 @@ function CatalogContent() {
     async function fetchFiltered() {
       setLoading(true);
       let query = supabase.from('mangas').select(`*, chapters(id)`);
-
       if (searchQuery.trim()) query = query.ilike('title', `%${searchQuery}%`);
       if (selectedGenre !== 'Hammasi') query = query.contains('genres', [selectedGenre]);
 
       const { data, error } = await query;
-
       if (!error && data) {
-        let processedData = data.map(m => ({ 
-          ...m, 
-          chapters_count: m.chapters?.length || 0 
-        }));
-
-        // Boblar soni bo'yicha filtr
+        let processedData = data.map(m => ({ ...m, chapters_count: m.chapters?.length || 0 }));
         if (minChapters) processedData = processedData.filter(m => m.chapters_count >= parseInt(minChapters));
         if (maxChapters) processedData = processedData.filter(m => m.chapters_count <= parseInt(maxChapters));
-
         setMangas(processedData);
       }
       setLoading(false);
@@ -65,82 +54,39 @@ function CatalogContent() {
           <div className="hidden md:flex items-center gap-6 text-sm font-bold text-gray-400">
             <Link href="/" className="hover:text-white transition">ASOSIY</Link>
             <Link href="/catalog" className="text-purple-500 border-b-2 border-purple-500 pb-5 pt-5">KATALOG</Link>
-            <Link href="/popular" className="hover:text-white transition">OMMABOP</Link>
           </div>
           <UserProfile />
         </div>
       </nav>
 
       <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-10">
-        
-        {/* QIDIRUV VA FILTRLAR PANELİ */}
         <div className="bg-[#151518] p-6 rounded-3xl border border-gray-800 mb-10 shadow-xl">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-            
-            {/* Nom bo'yicha */}
             <div className="lg:col-span-5 relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={20} />
-              <input 
-                type="text" 
-                placeholder="Manga nomini yozing..." 
-                value={searchQuery} 
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-14 bg-[#0E0E10] border border-gray-800 rounded-2xl pl-12 pr-10 focus:border-purple-600 outline-none text-white transition-all shadow-inner" 
-              />
+              <input type="text" placeholder="Manga nomini yozing..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full h-14 bg-[#0E0E10] border border-gray-800 rounded-2xl pl-12 pr-10 outline-none text-white focus:border-purple-600 transition-all" />
             </div>
-
-            {/* Boblar: Min */}
             <div className="lg:col-span-2 relative">
               <Hash className="absolute left-4 top-1/2 -translate-y-1/2 text-purple-600" size={18} />
-              <input 
-                type="number" 
-                placeholder="Min Bob" 
-                value={minChapters} 
-                onChange={(e) => setMinChapters(e.target.value)}
-                className="w-full h-14 bg-[#0E0E10] border border-gray-800 rounded-2xl pl-12 outline-none text-white focus:border-purple-600" 
-              />
+              <input type="number" placeholder="Min Bob" value={minChapters} onChange={(e) => setMinChapters(e.target.value)}
+                className="w-full h-14 bg-[#0E0E10] border border-gray-800 rounded-2xl pl-12 outline-none text-white focus:border-purple-600" />
             </div>
-
-            {/* Boblar: Max */}
             <div className="lg:col-span-2 relative">
               <Hash className="absolute left-4 top-1/2 -translate-y-1/2 text-purple-600" size={18} />
-              <input 
-                type="number" 
-                placeholder="Max Bob" 
-                value={maxChapters} 
-                onChange={(e) => setMaxChapters(e.target.value)}
-                className="w-full h-14 bg-[#0E0E10] border border-gray-800 rounded-2xl pl-12 outline-none text-white focus:border-purple-600" 
-              />
+              <input type="number" placeholder="Max Bob" value={maxChapters} onChange={(e) => setMaxChapters(e.target.value)}
+                className="w-full h-14 bg-[#0E0E10] border border-gray-800 rounded-2xl pl-12 outline-none text-white focus:border-purple-600" />
             </div>
-
-            {/* Janr selektori */}
             <div className="lg:col-span-3 relative">
               <Layers className="absolute left-4 top-1/2 -translate-y-1/2 text-purple-600" size={18} />
-              <select 
-                value={selectedGenre} 
-                onChange={(e) => setSelectedGenre(e.target.value)}
-                className="w-full h-14 bg-[#0E0E10] border border-gray-800 rounded-2xl pl-12 pr-4 outline-none font-bold text-gray-300 appearance-none focus:border-purple-600 cursor-pointer"
-              >
+              <select value={selectedGenre} onChange={(e) => setSelectedGenre(e.target.value)}
+                className="w-full h-14 bg-[#0E0E10] border border-gray-800 rounded-2xl pl-12 pr-4 outline-none font-bold text-gray-300 appearance-none focus:border-purple-600 cursor-pointer">
                 {GENRES.map(g => <option key={g} value={g} className="bg-[#0E0E10]">{g === 'Hammasi' ? 'Barcha Janrlar' : g}</option>)}
               </select>
             </div>
           </div>
-
-          {/* Janrlar teglari (tezkor tanlash uchun) */}
-          <div className="flex flex-wrap gap-2 mt-6 pt-6 border-t border-gray-800/50">
-            {GENRES.slice(0, 8).map(g => (
-              <button 
-                key={g} 
-                onClick={() => setSelectedGenre(g)}
-                className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${selectedGenre === g ? 'bg-purple-600 text-white' : 'bg-[#0E0E10] text-gray-500 border border-gray-800 hover:border-gray-600'}`}
-              >
-                {g.toUpperCase()}
-              </button>
-            ))}
-          </div>
         </div>
 
-        {/* NATIJALAR */}
         {loading ? (
           <div className="flex justify-center py-20"><div className="w-12 h-12 border-4 border-purple-600 border-t-transparent rounded-full animate-spin"></div></div>
         ) : mangas.length > 0 ? (
