@@ -3,26 +3,15 @@ import { useState, useEffect, Suspense } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { Search, SearchX, Hash, Check } from 'lucide-react';
+import { Search, SearchX, Hash, Check, ArrowDownUp } from 'lucide-react';
 import UserProfile from '../components/UserProfile';
 
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
 
-// YANGILANGAN JANRLAR RO'YXATI
 const GENRES = [
-  "Jangari", 
-  "Sport", 
-  "Komediya", 
-  "Fantastika", 
-  "Ekshen", 
-  "Syonen", 
-  "Romantika", 
-  "Sarguzasht", 
-  "Isekai", 
-  "Kultivatsiya", 
-  "Reenkarnatsiya", 
-  "Dahshatli", 
-  "Drama"
+  "Jangari", "Sport", "Sport komediya", "Fantastika", "Ekshen", 
+  "Syonen", "Romantika", "Sarguzasht", "Isekai", "Kultivatsiya", 
+  "Reenkarnatsiya", "Dahshatli", "Drama"
 ];
 
 function CatalogContent() {
@@ -36,11 +25,12 @@ function CatalogContent() {
   const [selectedGenres, setSelectedGenres] = useState<string[]>(initialGenre ? [initialGenre] : []);
   const [minChapters, setMinChapters] = useState('');
   const [maxChapters, setMaxChapters] = useState('');
+  
+  // SARALASH UCHUN YANGI STATE
+  const [sortBy, setSortBy] = useState('newest'); 
 
   const toggleGenre = (genre: string) => {
-    setSelectedGenres(prev => 
-      prev.includes(genre) ? prev.filter(g => g !== genre) : [...prev, genre]
-    );
+    setSelectedGenres(prev => prev.includes(genre) ? prev.filter(g => g !== genre) : [...prev, genre]);
   };
 
   useEffect(() => {
@@ -56,12 +46,22 @@ function CatalogContent() {
         let processedData = data.map(m => ({ ...m, chapters_count: m.chapters?.length || 0 }));
         if (minChapters) processedData = processedData.filter(m => m.chapters_count >= parseInt(minChapters));
         if (maxChapters) processedData = processedData.filter(m => m.chapters_count <= parseInt(maxChapters));
+
+        // SARALASH (SORTING) MANTIG'I
+        processedData.sort((a, b) => {
+          if (sortBy === 'newest') return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+          if (sortBy === 'oldest') return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+          if (sortBy === 'views') return (b.views || 0) - (a.views || 0);
+          if (sortBy === 'rating') return (b.rating || 0) - (a.rating || 0);
+          return 0;
+        });
+
         setMangas(processedData);
       }
       setLoading(false);
     }
     fetchFiltered();
-  }, [searchQuery, selectedGenres, minChapters, maxChapters]);
+  }, [searchQuery, selectedGenres, minChapters, maxChapters, sortBy]); // sortBy o'zgarganda ham ishlaydi
 
   return (
     <main className="min-h-screen bg-[#0E0E10] text-gray-200 font-sans pb-20">
@@ -105,9 +105,32 @@ function CatalogContent() {
                   {selectedGenres.includes(g) && <Check size={12} />} {g}
                 </button>
               ))}
-              {selectedGenres.length > 0 && <button onClick={() => setSelectedGenres([])} className="px-4 py-2 rounded-xl text-xs font-bold text-red-500 hover:bg-red-500/10 transition-all border border-transparent">Tozalash</button>}
             </div>
           </div>
+
+          {/* SARALASH (SORTING) BO'LIMI */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-6 pt-6 border-t border-gray-800/50 gap-4">
+            {selectedGenres.length > 0 ? (
+              <button onClick={() => setSelectedGenres([])} className="px-4 py-2 rounded-xl text-xs font-bold text-red-500 hover:bg-red-500/10 transition-all border border-transparent">
+                Filtrlarni tozalash
+              </button>
+            ) : <div></div>}
+
+            <div className="flex items-center gap-2 bg-[#0E0E10] border border-gray-800 rounded-xl px-4 h-12 shadow-inner">
+              <ArrowDownUp size={18} className="text-purple-500" />
+              <select 
+                value={sortBy} 
+                onChange={(e) => setSortBy(e.target.value)} 
+                className="bg-transparent text-sm font-bold text-gray-300 outline-none cursor-pointer appearance-none pr-4"
+              >
+                <option value="newest" className="bg-[#0E0E10]">Eng yangi</option>
+                <option value="views" className="bg-[#0E0E10]">Ko'p o'qilganlar</option>
+                <option value="rating" className="bg-[#0E0E10]">Yuqori baholanganlar</option>
+                <option value="oldest" className="bg-[#0E0E10]">Eng eski</option>
+              </select>
+            </div>
+          </div>
+
         </div>
 
         {loading ? (
@@ -130,7 +153,6 @@ function CatalogContent() {
           <div className="flex flex-col items-center justify-center py-32 text-center bg-[#151518] rounded-3xl border border-dashed border-gray-800">
             <SearchX size={64} className="text-gray-700 mb-4" />
             <h2 className="text-xl font-bold text-white">Hech narsa topilmadi</h2>
-            <button onClick={() => {setSearchQuery(''); setSelectedGenres([]); setMinChapters(''); setMaxChapters('');}} className="mt-6 bg-purple-600/10 text-purple-500 px-8 py-3 rounded-2xl font-bold hover:bg-purple-600 hover:text-white transition-all">Filtrlarni tozalash</button>
           </div>
         )}
       </div>
