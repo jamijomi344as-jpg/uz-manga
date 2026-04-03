@@ -31,8 +31,20 @@ export default function BulkAddChapters() {
     addLog("Papkadan PDF fayllar qidirilmoqda...");
 
     try {
-      // 1. Papkadagi barcha fayllarni olish (Bucket nomini 'mangas' yoki o'zingiznikiga o'zgartiring)
       const bucketName = 'manga-pages'; // O'zingizning Supabase storage bucket nomingiz
+      
+      // 1. Bazada oldin qo'shilgan boblarni tekshiramiz (Dublikatni oldini olish uchun)
+      const { data: existingChapters, error: checkError } = await supabase
+        .from('chapters')
+        .select('chapter_number')
+        .eq('manga_id', selectedMangaId);
+
+      if (checkError) throw checkError;
+
+      // Oldin qo'shilgan bob raqamlarini bitta ro'yxatga yig'ib olamiz (masalan: [1, 2, 3])
+      const existingChapterNums = new Set(existingChapters?.map(ch => ch.chapter_number) || []);
+
+      // 2. Papkadagi fayllarni olamiz
       const { data: files, error: storageError } = await supabase
         .storage
         .from(bucketName)
@@ -42,45 +54,54 @@ export default function BulkAddChapters() {
         throw new Error(`Papka topilmadi yoki bo'sh! ${storageError?.message || ''}`);
       }
 
-      // 2. Faqat PDF fayllarni ajratib olish
       const pdfFiles = files.filter(f => f.name.toLowerCase().endsWith('.pdf'));
-      addLog(`${pdfFiles.length} ta PDF fayl topildi. Saralanmoqda...`);
+      addLog(`${pdfFiles.length} ta PDF fayl topildi. Tekshirilmoqda...`);
 
       if (pdfFiles.length === 0) throw new Error("Papkada birorta ham PDF fayl yo'q!");
 
-      // 3. Fayllarni tahlil qilish va bazaga yozish uchun tayyorlash
       const chaptersToInsert = [];
+      let skippedCount = 0;
 
       for (const file of pdfFiles) {
-        // Fayl nomidan faqat raqamni sug'urib olish (masalan: "bob12.pdf" dan "12" ni oladi)
         const match = file.name.match(/\d+(\.\d+)?/);
         
         if (!match) {
-          addLog(`DIQQAT: '${file.name}' nomidan bob raqamini topib bo'lmadi. O'tkazib yuborildi.`);
+          addLog(`DIQQAT: '${file.name}' nomidan raqam topilmadi.`);
           continue;
         }
 
         const chapterNum = parseFloat(match[0]);
+
+        // ENG ASOSIY JOYI: Agar bu bob raqami bazada bor bo'lsa, o'tkazib yuboramiz!
+        if (existingChapterNums.has(chapterNum)) {
+          addLog(`⚠️ ${chapterNum}-bob allaqachon bazada bor. O'tkazib yuborildi.`);
+          skippedCount++;
+          continue;
+        }
         
-        // Faylning public URL manzilini olish
         const { data: publicUrlData } = supabase.storage.from(bucketName).getPublicUrl(`${folderPath}/${file.name}`);
 
         chaptersToInsert.push({
           manga_id: selectedMangaId,
           chapter_number: chapterNum,
-          pdf_url: publicUrlData.publicUrl, // BAZANGIZDA 'pdf_url' DEGAN USTUN BO'LISHI KERAK
+          pdf_url: publicUrlData.publicUrl,
         });
       }
 
-      // 4. Bazaga barchasini bitta so'rov bilan yozish (Bulk Insert)
+      // 3. Faqat YANGI boblarni bazaga yozish
       if (chaptersToInsert.length > 0) {
-        addLog("Bazaga yozilmoqda...");
+        addLog("Yangi boblar bazaga yozilmoqda...");
         const { error: dbError } = await supabase.from('chapters').insert(chaptersToInsert);
         
         if (dbError) throw dbError;
         
-        addLog(`✅ MUVAFFAQIYATLI! ${chaptersToInsert.length} ta bob bazaga qo'shildi!`);
+        addLog(`✅ MUVAFFAQIYATLI! ${chaptersToInsert.length} ta yangi bob qo'shildi!`);
+        if (skippedCount > 0) {
+          addLog(`ℹ️ ${skippedCount} ta eski bob dublikat bo'lmasligi uchun o'tkazib yuborildi.`);
+        }
         setFolderPath('');
+      } else {
+        addLog(`ℹ️ Papkadagi hamma boblar allaqachon bazada bor ekan. Hech narsa qo'shilmadi.`);
       }
 
     } catch (err: any) {
@@ -94,7 +115,7 @@ export default function BulkAddChapters() {
     <div className="min-h-screen bg-[#0E0E10] text-gray-200 p-8">
       <div className="max-w-[800px] mx-auto bg-[#151518] p-8 rounded-2xl border border-gray-800 shadow-xl">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-white">Barcha Boblarni (PDF) Avtomatik Qo'shish</h1>
+          <h1 className="text-2xl font-bold text-white">Barcha Boblarni Avtomatik Qo'shish</h1>
           <Link href="/admin/add" className="text-purple-500 hover:underline">Orqaga</Link>
         </div>
         
@@ -112,20 +133,20 @@ export default function BulkAddChapters() {
           <div>
             <label className="block text-sm text-purple-400 font-bold mb-2">Supabase Papka Manzili</label>
             <input type="text" placeholder="masalan: naruto/pdfs" value={folderPath} onChange={e => setFolderPath(e.target.value)} required className="w-full bg-[#0E0E10] border border-purple-500/50 rounded-xl px-4 py-3 outline-none focus:border-purple-600" />
-            <p className="text-xs text-gray-500 mt-2">
-              Papkadagi fayllar nomida raqam bo'lishi shart. Masalan: <b>bob1.pdf</b>, <b>2-bob.pdf</b> yoki shunchaki <b>3.pdf</b>
-            </p>
+          </div>
+
+          <div className="bg-green-900/10 border border-green-800/50 p-4 rounded-xl text-sm text-green-400">
+            <span className="font-bold">Aqlli tizim:</span> Papkani qayta-qayta yuklasangiz ham, tizim faqat yangi qo'shilgan boblarni topib saqlaydi. Oldin kiritilganlari dublikat bo'lib qolmaydi.
           </div>
 
           <button type="submit" disabled={loading} className="w-full bg-purple-600 text-white font-bold py-4 rounded-xl hover:bg-purple-500 transition-colors disabled:opacity-50">
-            {loading ? 'Jarayon ketyapti, kutib turing...' : 'Papkadagi barcha PDF larni bazaga urish'}
+            {loading ? 'Tekshirilmoqda...' : 'Papkadagi PDF larni bazaga urish'}
           </button>
 
-          {/* JARAYON LOGLARI (Nima bo'layotganini ko'rsatib turadi) */}
           {statusLogs.length > 0 && (
             <div className="bg-[#0E0E10] border border-gray-800 p-4 rounded-xl font-mono text-sm h-40 overflow-y-auto custom-scrollbar">
               {statusLogs.map((log, idx) => (
-                <div key={idx} className={`mb-1 ${log.includes('❌') ? 'text-red-400' : log.includes('✅') ? 'text-green-400' : 'text-gray-400'}`}>
+                <div key={idx} className={`mb-1 ${log.includes('❌') ? 'text-red-400' : log.includes('✅') ? 'text-green-400' : log.includes('⚠️') ? 'text-yellow-400' : 'text-gray-400'}`}>
                   {'>'} {log}
                 </div>
               ))}
