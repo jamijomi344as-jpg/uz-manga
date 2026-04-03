@@ -12,7 +12,7 @@ const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env
 const GENRES = [
   "Jangari", 
   "Sport", 
-  "Sport komediya", 
+  "Komediya", 
   "Fantastika", 
   "Ekshen", 
   "Syonen", 
