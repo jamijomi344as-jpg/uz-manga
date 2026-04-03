@@ -10,7 +10,7 @@ const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env
 
 // MANA SHU YERDA YANGI JANRLAR RO'YXATI TURIBDI
 const GENRES = [
-  "Jangari", "Sport", "Sport komediya", "Fantastika", "Ekshen", 
+  "Jangari", "Sport", "Komediya", "Fantastika", "Ekshen", 
   "Syonen", "Romantika", "Sarguzasht", "Isekai", "Kultivatsiya", 
   "Reenkarnatsiya", "Dahshatli", "Drama"
 ];
