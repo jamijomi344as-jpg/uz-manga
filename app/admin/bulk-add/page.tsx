@@ -31,7 +31,7 @@ export default function BulkAddChapters() {
     addLog("Papkadan PDF fayllar qidirilmoqda...");
 
     try {
-      const bucketName = 'manga-pages'; // O'zingizning Supabase storage bucket nomingiz
+      const bucketName = 'manga-pdfs'; // O'zingizning Supabase storage bucket nomingiz
       
       // 1. Bazada oldin qo'shilgan boblarni tekshiramiz (Dublikatni oldini olish uchun)
       const { data: existingChapters, error: checkError } = await supabase
