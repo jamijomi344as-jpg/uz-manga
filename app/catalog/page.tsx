@@ -8,7 +8,7 @@ import UserProfile from '../components/UserProfile';
 
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
 
-const GENRES = ["Ekshen", "Fantastika", "Syonen", "Romantika", "Sarguzasht", "Isekai", "Kultivatsiya", "Reenkarnatsiya", "Dahshatli", "Drama", "Psixologik", "Triller"];
+const GENRES = ["Ekshen", "Fantastika", "Syonen", "Romantika", "Sarguzasht", "Isekai", "Kultivatsiya", "Reenkarnatsiya", "Dahshatli", "Drama", "Psixologik", "Triller", "Maktab", "Sport", 'Komediya", "Jangari", "Fantastika"];
 
 function CatalogContent() {
   const searchParams = useSearchParams();
